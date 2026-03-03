@@ -191,7 +191,7 @@
     </div>
 
     <script>
-        // === JSON COMPLETO INCORPORADO (todo el archivo preguntas.json) ===
+        // === JSON COMPLETO INCORPORADO (todo el contenido de preguntas.json sin placeholders) ===
         const rawData = {
   "manual": "Manual de preparación de la prueba CCSE 2026",
   "questions_by_task": {
@@ -544,7 +544,7 @@
             "5075":"b","5076":"b","5077":"b","5078":"a","5079":"b","5080":"b","5081":"b","5082":"a","5083":"a","5084":"a"
         };
 
-        // === VARIABLES DEL EXAMEN ===
+        // === VARIABLES GLOBALES ===
         let allQuestions = [];
         let currentQuiz = [];
         let currentIndex = 0;
@@ -580,6 +580,11 @@
         }
 
         function showQuestion() {
+            // === RESET TOTAL DEL FEEDBACK (esto elimina cualquier caja coloreada residual) ===
+            const feedbackEl = document.getElementById("feedback");
+            feedbackEl.className = "feedback hidden";   // ← quita "correct" / "incorrect" y cualquier color
+            feedbackEl.textContent = "";
+
             const q = currentQuiz[currentIndex];
             document.getElementById("current-num").textContent = currentIndex + 1;
             document.getElementById("task-type").textContent = q.task;
@@ -587,7 +592,6 @@
 
             const container = document.getElementById("options-container");
             container.innerHTML = "";
-            document.getElementById("feedback").classList.add("hidden");
 
             Object.keys(q.options).forEach(key => {
                 const div = document.createElement("div");
@@ -597,7 +601,7 @@
                 container.appendChild(div);
             });
 
-            document.getElementById("progress").style.width = ((currentIndex)/10*100) + "%";
+            document.getElementById("progress").style.width = ((currentIndex) / 10 * 100) + "%";
             document.getElementById("btn-prev").disabled = currentIndex === 0;
             document.getElementById("btn-next").disabled = true;
             answered = false;
@@ -611,8 +615,7 @@
             const correct = correctAnswers[q.id];
             userAnswers[q.id] = letter;
 
-            const allOpts = document.querySelectorAll(".option");
-            allOpts.forEach(opt => {
+            document.querySelectorAll(".option").forEach(opt => {
                 const l = opt.querySelector(".option-letter").textContent.toLowerCase();
                 if (l === letter) opt.classList.add(letter === correct ? "correct" : "incorrect");
                 if (l === correct && letter !== correct) opt.classList.add("correct");
@@ -620,14 +623,9 @@
             });
 
             const fb = document.getElementById("feedback");
+            fb.className = letter === correct ? "feedback correct" : "feedback incorrect";
+            fb.textContent = letter === correct ? "¡Correcto! ✅" : `Incorrecto. La respuesta correcta es: ${correct.toUpperCase()} ❌`;
             fb.classList.remove("hidden");
-            if (letter === correct) {
-                fb.textContent = "¡Correcto! ✅";
-                fb.className = "feedback correct";
-            } else {
-                fb.textContent = `Incorrecto. La respuesta correcta es: ${correct.toUpperCase()} ❌`;
-                fb.className = "feedback incorrect";
-            }
 
             document.getElementById("btn-next").disabled = false;
         }
@@ -663,8 +661,7 @@
             document.getElementById("score-text").innerHTML = `Has acertado <strong>${correctCount}</strong> de 10 preguntas<br>(${perc}%)`;
 
             const sb = document.getElementById("success-box");
-            if (perc >= 60) sb.classList.remove("hidden");
-            else sb.classList.add("hidden");
+            perc >= 60 ? sb.classList.remove("hidden") : sb.classList.add("hidden");
         }
 
         function restartQuiz() {
@@ -672,7 +669,7 @@
             document.getElementById("start-screen").classList.add("active");
         }
 
-        window.onload = () => console.log("✅ Simulacro CCSE 2026 cargado correctamente con feedback inmediato");
+        window.onload = () => console.log("✅ Simulacro CCSE 2026 – JSON completo + feedback box eliminado en cada nueva pregunta");
     </script>
 </body>
 </html>
