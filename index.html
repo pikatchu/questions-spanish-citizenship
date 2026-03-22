@@ -154,9 +154,8 @@
         <div id="start-screen" class="screen active">
             <h1 style="font-size:28px;margin-bottom:20px">¡Bienvenido al examen de práctica!</h1>
             <p style="font-size:19px;max-width:520px;margin:0 auto 30px">
-                <strong>25 preguntas aleatorias</strong> del Manual oficial CCSE 2026.<br><br>
-                <strong>15</strong> preguntas sobre gobierno, constitución y participación ciudadana.<br>
-                <strong>10</strong> preguntas sobre cultura, historia y sociedad.<br><br>
+                <strong>300 preguntas</strong> del Manual oficial CCSE 2026.<br><br>
+                Todas las preguntas sobre gobierno, constitución, participación ciudadana, cultura, historia y sociedad.<br><br>
                 <strong>¡Feedback inmediato después de cada respuesta!</strong>
             </p>
             <button onclick="startQuiz()" class="big-button">COMENZAR EL EXAMEN</button>
@@ -165,7 +164,7 @@
         <!-- QUIZ -->
         <div id="quiz-screen" class="screen">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div class="question-number">Pregunta <span id="current-num">1</span> de 25</div>
+                <div class="question-number">Pregunta <span id="current-num">1</span> de <span id="total-num">300</span></div>
                 <div id="task-type" style="font-size:15px;color:#666"></div>
             </div>
             <div class="progress-bar" id="progress"></div>
@@ -572,14 +571,7 @@
 
         function startQuiz() {
             loadAllQuestions();
-            // 15 preguntas de gobierno/constitución/participación ciudadana (TAREA1 + TAREA2)
-            const govQuestions = allQuestions.filter(q => q.task === "TAREA1" || q.task === "TAREA2");
-            // 10 preguntas de cultura, historia y sociedad (TAREA3 + TAREA4 + TAREA5)
-            const cultureQuestions = allQuestions.filter(q => q.task === "TAREA3" || q.task === "TAREA4" || q.task === "TAREA5");
-            currentQuiz = shuffle([
-                ...shuffle([...govQuestions]).slice(0, 15),
-                ...shuffle([...cultureQuestions]).slice(0, 10)
-            ]);
+            currentQuiz = shuffle([...allQuestions]);
             currentIndex = 0;
             userAnswers = {};
             answered = false;
@@ -610,7 +602,8 @@
                 container.appendChild(div);
             });
 
-            document.getElementById("progress").style.width = ((currentIndex) / 25 * 100) + "%";
+            document.getElementById("total-num").textContent = currentQuiz.length;
+            document.getElementById("progress").style.width = ((currentIndex) / currentQuiz.length * 100) + "%";
             document.getElementById("btn-prev").disabled = currentIndex === 0;
             document.getElementById("btn-next").disabled = true;
             answered = false;
@@ -640,7 +633,7 @@
         }
 
         function nextQuestion() {
-            if (currentIndex < 24) {
+            if (currentIndex < currentQuiz.length - 1) {
                 currentIndex++;
                 showQuestion();
             } else {
@@ -665,9 +658,10 @@
                 if (userAnswers[id] === correctAnswers[id]) correctCount++;
             });
 
-            const perc = Math.round((correctCount / 25) * 100);
+            const total = currentQuiz.length;
+            const perc = Math.round((correctCount / total) * 100);
             document.getElementById("percentage").textContent = perc;
-            document.getElementById("score-text").innerHTML = `Has acertado <strong>${correctCount}</strong> de 25 preguntas<br>(${perc}%)`;
+            document.getElementById("score-text").innerHTML = `Has acertado <strong>${correctCount}</strong> de ${total} preguntas<br>(${perc}%)`;
 
             const sb = document.getElementById("success-box");
             perc >= 60 ? sb.classList.remove("hidden") : sb.classList.add("hidden");
